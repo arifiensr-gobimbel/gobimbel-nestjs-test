@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model t_orangtua {
+  c_id          Int                    @id @default(autoincrement())
+  c_no_register BigInt
+  c_email       String?                @db.VarChar(225)
+  c_nomor_hp    String?                @db.VarChar(255)
+  c_id_device   String?                @db.VarChar(50)
+  c_is_login    t_orangtua_c_is_login?
+  c_is_aktif    t_orangtua_c_is_aktif?
+  c_created_at  DateTime               @default(now()) @db.Timestamp(0)
+  c_password    String                 @db.VarChar(24)
+  t_siswa       t_siswa                @relation(fields: [c_no_register], references: [c_no_register], onDelete: Cascade, map: "fk_orangtua_siswa")
+
+  @@index([c_no_register], map: "fk_orangtua_siswa_idx")
+}
+
+model t_pilihan_ptn_siswa {
+  c_id          Int     @id @default(autoincrement())
+  c_no_register BigInt
+  c_pilihan     Json?
+  t_siswa       t_siswa @relation(fields: [c_no_register], references: [c_no_register], onDelete: Cascade, map: "fk_pilihanptn_siswa")
+
+  @@index([c_no_register], map: "fk_pilihanptn_siswa")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model t_produk_aktif {
+  c_id            Int                     @id @default(autoincrement())
+  c_no_register   BigInt
+  c_id_produk     Int                     @default(0)
+  c_status        t_produk_aktif_c_status @default(Aktif)
+  c_tanggal_awal  DateTime?               @db.Date
+  c_tanggal_akhir DateTime?               @db.Date
+  t_siswa         t_siswa                 @relation(fields: [c_no_register], references: [c_no_register], onDelete: NoAction, onUpdate: NoAction, map: "fk_produk_aktif_siswa")
+
+  @@index([c_id_produk], map: "fk_produk_aktif_produk_idx")
+  @@index([c_no_register], map: "fk_produk_aktif_siswa_idx")
+}
+
+model t_produk_siswa {
+  c_id_pembelian          Int
+  c_id                    Int       @id @default(autoincrement())
+  c_no_register           BigInt
+  c_tanggal_daftar        DateTime? @db.Date
+  c_nis                   String?   @db.VarChar(12)
+  c_id_kelas              Int?
+  c_tahun_ajaran          String?   @db.VarChar(10)
+  c_id_dikdasken          Int?
+  c_nama_lengkap          String?   @db.VarChar(80)
+  c_id_gedung             Int?
+  c_id_komar              Int?
+  c_id_penanda            Int?
+  c_id_sekolah            Int?
+  c_id_sekolah_kelas      Int?
+  c_tingkat_sekolah_kelas String?   @db.VarChar(20)
+  c_id_jenis_kelas        Int?
+  c_kapasitas_max         Int?
+  c_status_bayar          String?   @db.VarChar(15)
+  c_id_bundling           Int?
+  c_kerjasama             String?   @db.Char(1)
+  c_last_update           DateTime? @default(now()) @db.Timestamp(0)
+  t_siswa                 t_siswa   @relation(fields: [c_no_register], references: [c_no_register], onDelete: Cascade, map: "fk_produk_siswa")
+
+  @@index([c_id_gedung], map: "fk_gedung_siswa_idx")
+  @@index([c_no_register], map: "fk_produk_siswa")
+  @@index([c_id_sekolah_kelas], map: "fk_sekolah_kelas_siswa_idx")
+  @@index([c_id_sekolah], map: "fk_sekolah_siswa_idx")
+}
+
+model t_siswa {
+  c_no_register       BigInt                @id
+  c_nama_lengkap      String?               @db.VarChar(100)
+  c_email             String?               @db.VarChar(225)
+  c_nomor_hp          String?               @db.VarChar(255)
+  c_id_device         String?               @db.VarChar(50)
+  c_is_login          t_siswa_c_is_login?
+  c_is_aktif          t_siswa_c_is_aktif?
+  c_created_at        DateTime              @default(now()) @db.Timestamp(0)
+  c_password          String                @db.VarChar(24)
+  t_orangtua          t_orangtua[]
+  t_pilihan_ptn_siswa t_pilihan_ptn_siswa[]
+  t_produk_aktif      t_produk_aktif[]
+  t_produk_siswa      t_produk_siswa[]
+  t_siswa_detail      t_siswa_detail[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model t_siswa_detail {
+  c_id                 Int                             @id @default(autoincrement())
+  c_no_register        BigInt
+  c_nama_lengkap       String                          @db.VarChar(80)
+  c_nama_panggilan     String?                         @db.VarChar(50)
+  c_jenis_kelamin      t_siswa_detail_c_jenis_kelamin?
+  c_gol_darah          String?                         @db.VarChar(5)
+  c_id_district        Int?
+  c_tgl_lahir          DateTime?                       @db.Date
+  c_agama              String?                         @db.VarChar(30)
+  c_nama_ibu_kandung   String?                         @db.VarChar(55)
+  c_pekerjaan_ortu     String?                         @db.VarChar(250)
+  c_id_lurah           Int?
+  c_alamat             String?                         @db.LongText
+  c_no_tlp             String?                         @db.Char(15)
+  c_no_tlp2            String?                         @db.Char(15)
+  c_hp                 String?                         @db.Char(15)
+  c_hp2                String?                         @db.Char(15)
+  c_email              String?                         @db.VarChar(50)
+  c_email2             String?                         @db.VarChar(50)
+  c_status_kepemilikan String?                         @db.VarChar(30)
+  c_hubungan           String?                         @db.VarChar(100)
+  c_is_aktif           t_siswa_detail_c_is_aktif       @default(Aktif)
+  c_updater            String?                         @db.VarChar(20)
+  c_insert             DateTime?                       @default(now()) @db.Timestamp(0)
+  c_last_update        DateTime?                       @default(now()) @db.Timestamp(0)
+  c_id_gedung          Int
+  c_nisn               String?                         @db.VarChar(14)
+  t_siswa              t_siswa                         @relation(fields: [c_no_register], references: [c_no_register], onDelete: NoAction, onUpdate: NoAction, map: "fk_siswa_detail")
+
+  @@index([c_no_register], map: "fk_siswa_detail_idx")
+}
+
+model t_siswa_no_kelas {
+  c_id                    Int       @id @default(autoincrement())
+  c_id_pembelian          Int
+  c_no_register           BigInt
+  c_tanggal_daftar        DateTime? @db.Date
+  c_nis                   String?   @db.VarChar(12)
+  c_id_kelas              Int?
+  c_tahun_ajaran          String?   @db.VarChar(10)
+  c_id_dikdasken          Int?
+  c_nama_lengkap          String?   @db.VarChar(80)
+  c_id_gedung             Int?
+  c_id_komar              Int?
+  c_id_penanda            Int?
+  c_id_sekolah            Int?
+  c_id_sekolah_kelas      Int?
+  c_tingkat_sekolah_kelas String?   @db.VarChar(20)
+  c_id_jenis_kelas        Int?
+  c_kapasitas_max         Int?
+  c_status_bayar          String?   @db.VarChar(15)
+  c_id_bundling           Int?
+  c_kerjasama             String?   @db.Char(1)
+  c_last_update           DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model t_tamu {
+  c_user_id          Int              @id @default(autoincrement())
+  c_nama_lengkap     String           @db.VarChar(80)
+  c_email            String?          @db.VarChar(50)
+  c_nomor_hp         String           @db.Char(15)
+  c_id_sekolah_kelas Int?
+  c_tanggal_lahir    DateTime?        @db.Date
+  c_status           t_tamu_c_status? @default(aktif)
+  c_last_update      DateTime?        @default(now()) @db.Timestamp(0)
+  c_id_kota          Int?
+  c_password         String           @db.VarChar(24)
+}
+
+enum t_produk_aktif_c_status {
+  Aktif
+  TidakAktif
+}
+
+enum t_siswa_detail_c_jenis_kelamin {
+  Laki_Laki @map("Laki-Laki")
+  Perempuan
+}
+
+enum t_orangtua_c_is_login {
+  login
+  tidaklogin
+}
+
+enum t_siswa_c_is_login {
+  login
+  tidaklogin
+}
+
+enum t_orangtua_c_is_aktif {
+  aktif
+  tidakaktif
+}
+
+enum t_siswa_c_is_aktif {
+  aktif
+  tidakaktif
+}
+
+enum t_tamu_c_status {
+  aktif
+  tidakaktif
+}
+
+enum t_siswa_detail_c_is_aktif {
+  Aktif
+  TidakAktif
+  Double
+  Meninggal
+}
